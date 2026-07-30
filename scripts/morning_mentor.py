@@ -44,7 +44,14 @@ response = requests.post(
     },
 )
 
-text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+print("Status:", response.status_code)
+print("Response:")
+print(response.text)
+
+response.raise_for_status()
+
+data = response.json()
+text = data["candidates"][0]["content"]["parts"][0]["text"]
 
 requests.post(
     f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
