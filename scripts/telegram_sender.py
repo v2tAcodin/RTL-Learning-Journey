@@ -6,11 +6,14 @@ def send_message(message):
 
     response = requests.post(
         url,
-        data={
+        json={
             "chat_id": CHAT_ID,
             "text": message,
         },
+        timeout=30,
     )
 
-    print("Telegram Status:", response.status_code)
-    print("Telegram Response:", response.text)
+    print("Telegram status:", response.status_code)
+    print("Telegram response:", response.text)
+
+    response.raise_for_status()
