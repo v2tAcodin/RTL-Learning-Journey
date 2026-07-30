@@ -1,62 +1,38 @@
+from google import genai
 import os
 import requests
 
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+client = genai.Client(
+    api_key=os.environ["GEMINI_API_KEY"]
+)
 
-prompt = """
+response = client.models.generate_content(
+    model="gemini-2.5-flash-lite",
+    contents="""
 Bạn là mentor RTL.
 
-Người học đang theo lộ trình:
-- Verilog
-- FPGA
-- CPU RISC-V
-- Design Verification
+Viết bản hướng dẫn học hôm nay bằng tiếng Việt.
 
-Hãy tạo task học hôm nay bằng tiếng Việt.
+Bao gồm:
 
-Format:
-
-🌅 RTL Morning Mentor
+🌅 Tiến độ
 
 🎯 Mục tiêu
 
-📚 3 việc cần làm
+📚 3 nhiệm vụ
 
-💡 1 lời khuyên
+💡 Một lời khuyên
 
-⏱ Khoảng 3-4 giờ học.
+⏱ Tổng thời gian khoảng 3-4 giờ.
 """
-
-url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-
-response = requests.post(
-    url,
-    json={
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ]
-    },
 )
 
-print("Status:", response.status_code)
-print("Response:")
-print(response.text)
-
-response.raise_for_status()
-
-data = response.json()
-text = data["candidates"][0]["content"]["parts"][0]["text"]
+text = response.text
 
 requests.post(
-    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+    f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage",
     data={
-        "chat_id": CHAT_ID,
+        "chat_id": os.environ["TELEGRAM_CHAT_ID"],
         "text": text
     }
 )
