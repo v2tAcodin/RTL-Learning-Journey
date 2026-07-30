@@ -4,8 +4,6 @@ from config import GEMINI_API_KEY
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Thứ tự ưu tiên model. Nếu Google deprecate hoặc hết quota model nào,
-# code tự chuyển sang model kế tiếp.
 MODEL_FALLBACK_CHAIN = [
     "gemini-3.1-flash-lite",
     "gemini-flash-latest",   # alias, luôn trỏ tới bản Flash mới nhất
@@ -28,23 +26,25 @@ def _generate(model_name, prompt, use_grounding):
     return response.text
 
 
-def ask_gemini(prompt):
+def ask_gemini(prompt, use_grounding=True):
+    """
+    use_grounding=True: dùng cho bản tin sáng (cần tin tức thật).
+    use_grounding=False: dùng cho code review (không cần search, đỡ tốn quota grounding).
+    """
     last_error = None
 
-    # Pass 1: thử với Google Search grounding (có tin tức thật)
-    for model_name in MODEL_FALLBACK_CHAIN:
-        try:
-            return _generate(model_name, prompt, use_grounding=True)
-        except errors.ClientError as e:
-            if e.code in RETRYABLE_CODES:
-                print(f"[gemini_client] Model '{model_name}' lỗi {e.code} (có grounding), thử model kế tiếp...")
-                last_error = e
-                continue
-            raise
+    if use_grounding:
+        for model_name in MODEL_FALLBACK_CHAIN:
+            try:
+                return _generate(model_name, prompt, use_grounding=True)
+            except errors.ClientError as e:
+                if e.code in RETRYABLE_CODES:
+                    print(f"[gemini_client] Model '{model_name}' lỗi {e.code} (có grounding), thử model kế tiếp...")
+                    last_error = e
+                    continue
+                raise
+        print("[gemini_client] Grounding thất bại ở mọi model, thử lại KHÔNG có Google Search...")
 
-    # Pass 2: grounding thất bại ở mọi model (thường do hết quota grounding trên free tier)
-    # -> thử lại KHÔNG grounding, thà mất phần tin tức còn hơn bot chết hẳn
-    print("[gemini_client] Grounding thất bại ở mọi model, thử lại KHÔNG có Google Search...")
     for model_name in MODEL_FALLBACK_CHAIN:
         try:
             return _generate(model_name, prompt, use_grounding=False)
@@ -56,5 +56,5 @@ def ask_gemini(prompt):
             raise
 
     raise RuntimeError(
-        f"Tất cả model đều thất bại, kể cả không có grounding. Lỗi cuối cùng: {last_error}"
+        f"Tất cả model đều thất bại. Lỗi cuối cùng: {last_error}"
     )

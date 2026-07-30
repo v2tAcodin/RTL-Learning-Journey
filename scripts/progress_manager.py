@@ -25,6 +25,8 @@ DEFAULT_PROGRESS = {
     "last_run_date": None,
     "last_update_id": None,
     "last_report_raw": "",
+    "last_reviewed_commit": None,
+    "last_code_review": "",
 }
 
 

@@ -1,16 +1,16 @@
-name: RTL Morning Mentor
+name: RTL Evening Code Review
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1 * * *"  # 08:00 giờ Việt Nam (UTC+7)
+    - cron: "0 15 * * *"  # 22:00 giờ Việt Nam (UTC+7)
 
 permissions:
   contents: write
 
 jobs:
 
-  mentor:
+  review:
 
     runs-on: ubuntu-latest
 
@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # cần full git history để git diff hoạt động đúng
 
       - uses: actions/setup-python@v5
         with:
@@ -29,18 +29,18 @@ jobs:
               python -m pip install --upgrade pip
               pip install -r requirements.txt
 
-      - name: Run mentor
+      - name: Run evening code review
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python scripts/main.py
+          python scripts/run_evening_review.py
 
       - name: Commit updated progress.json
         run: |
           git config user.name "rtl-mentor-bot"
           git config user.email "actions@github.com"
           git add progress.json
-          git diff --cached --quiet || git commit -m "chore: update progress after morning run [skip ci]"
+          git diff --cached --quiet || git commit -m "chore: update progress after evening review [skip ci]"
           git push

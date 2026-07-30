@@ -55,6 +55,7 @@ if stage_status == "ADVANCE":
         print(f"Stage advanced: {old_stage} -> {new_stage}")
 
 progress["last_report_raw"] = ""  # đã dùng, xóa để không lặp lại vào ngày mai
+progress["last_code_review"] = ""  # đã gộp vào bản tin sáng, xóa để tránh nhắc lại
 progress = bump_after_run(progress)
 save_progress(progress)
 
