@@ -1,8 +1,8 @@
 {
   "day": 1,
   "streak": 1,
-  "current_module": "Đang xác định module đầu tiên",
-  "last_blocker": "Chưa có",
-  "last_completed": "Chưa có dữ liệu",
-  "last_run_date": null
+  "stage_index": 3,
+  "last_run_date": null,
+  "last_update_id": null,
+  "last_report_raw": ""
 }

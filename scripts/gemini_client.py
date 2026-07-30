@@ -1,16 +1,19 @@
 from google import genai
-from google.genai import errors
+from google.genai import errors, types
 from config import GEMINI_API_KEY
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Thứ tự ưu tiên: model chính trước, model dự phòng sau.
-# Nếu Google deprecate/đổi tên model nào đó, code vẫn chạy được nhờ fallback.
+# Thứ tự ưu tiên model. Nếu Google deprecate model nào, code vẫn chạy nhờ fallback.
 MODEL_FALLBACK_CHAIN = [
     "gemini-3.1-flash-lite",
     "gemini-flash-latest",   # alias, luôn trỏ tới bản Flash mới nhất
     "gemini-2.5-flash",
 ]
+
+# Bật Google Search grounding để Gemini lấy tin tức/thông tin thật thay vì bịa
+_grounding_tool = types.Tool(google_search=types.GoogleSearch())
+_generation_config = types.GenerateContentConfig(tools=[_grounding_tool])
 
 
 def ask_gemini(prompt):
@@ -21,11 +24,10 @@ def ask_gemini(prompt):
             response = client.models.generate_content(
                 model=model_name,
                 contents=prompt,
+                config=_generation_config,
             )
             return response.text
         except errors.ClientError as e:
-            # 404 = model không tồn tại/bị deprecate -> thử model kế tiếp
-            # Lỗi khác (401, 400...) thì raise luôn, thử model khác cũng vô ích
             if e.code == 404:
                 print(f"[gemini_client] Model '{model_name}' không dùng được (404), thử model kế tiếp...")
                 last_error = e
