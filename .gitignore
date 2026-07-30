@@ -1,0 +1,25 @@
+# Simulation
+*.vcd
+*.fst
+*.wlf
+
+# Build
+obj_dir/
+build/
+
+# Logs
+*.log
+
+# Vivado
+*.jou
+*.str
+*.cache
+*.runs
+*.sim
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
