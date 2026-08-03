@@ -4,24 +4,37 @@ from datetime import date, timedelta
 
 PROGRESS_FILE = os.path.join(os.path.dirname(__file__), "..", "progress.json")
 
-# Lộ trình cố định. Muốn thêm/bớt stage thì sửa list này.
-# stage_index trong progress.json trỏ vào vị trí hiện tại trong list.
-ROADMAP = [
-    "SystemVerilog cơ bản",
-    "Combinational + Sequential Logic",
-    "Generate / Module Instantiation",
-    "ALU + Self-checking Testbench",
-    "FIFO",
-    "UART",
-    "Synthesis + Timing",
-    "FPGA Bring-up",
-    "RISC-V CPU",
-]
+# 2 track song song, tiến độ theo dõi độc lập:
+# - "rtl": học vào Thứ 3
+# - "embedded": học vào Chủ nhật
+# Muốn đổi ngày active thì sửa get_active_track() bên dưới.
+ROADMAP = {
+    "rtl": [
+        "SystemVerilog cơ bản",
+        "Combinational + Sequential Logic",
+        "Generate / Module Instantiation",
+        "ALU + Self-checking Testbench",
+        "FIFO",
+        "UART",
+        "Synthesis + Timing",
+        "FPGA Bring-up",
+        "RISC-V CPU",
+    ],
+    "embedded": [
+        "Qsys/Platform Designer + NIOS II Integration",
+        "C Firmware Bare-metal (Nios II EDS)",
+        "Custom IP Core + Avalon-MM Driver",
+        "SoC Debug & HW/SW Co-verification",
+    ],
+}
+
+TRACKS = list(ROADMAP.keys())
 
 DEFAULT_PROGRESS = {
     "day": 1,
     "streak": 1,
-    "stage_index": 3,  # mặc định: đang ở ALU + Self-checking Testbench
+    "stage_index_rtl": 3,       # mặc định: đang ở ALU + Self-checking Testbench
+    "stage_index_embedded": 0,  # mặc định: chưa bắt đầu track embedded
     "last_run_date": None,
     "last_update_id": None,
     "last_report_raw": "",
@@ -38,8 +51,10 @@ def load_progress():
             data = json.load(f)
         merged = dict(DEFAULT_PROGRESS)
         merged.update(data)
-        # đảm bảo stage_index luôn hợp lệ dù ROADMAP có thay đổi độ dài
-        merged["stage_index"] = max(0, min(merged["stage_index"], len(ROADMAP) - 1))
+        # đảm bảo stage_index của mỗi track luôn hợp lệ dù ROADMAP có đổi độ dài
+        for track in TRACKS:
+            key = f"stage_index_{track}"
+            merged[key] = max(0, min(merged[key], len(ROADMAP[track]) - 1))
         return merged
     except (json.JSONDecodeError, OSError):
         return dict(DEFAULT_PROGRESS)
@@ -71,7 +86,28 @@ def bump_after_run(progress):
     return progress
 
 
-def advance_stage(progress):
-    if progress["stage_index"] < len(ROADMAP) - 1:
-        progress["stage_index"] += 1
+def get_active_track(today=None):
+    """
+    Thứ 3 -> 'rtl', Chủ nhật -> 'embedded'.
+    Các ngày khác trả về None (không đẩy stage mới, chỉ ôn/review nhẹ).
+    date.weekday(): 0=Thứ 2, 1=Thứ 3, 2=Thứ 4, 3=Thứ 5, 4=Thứ 6, 5=Thứ 7, 6=Chủ nhật
+    """
+    d = today or date.today()
+    weekday = d.weekday()
+    if weekday == 1:
+        return "rtl"
+    elif weekday == 6:
+        return "embedded"
+    return None
+
+
+def get_current_stage(progress, track):
+    stage_index = progress[f"stage_index_{track}"]
+    return ROADMAP[track][stage_index]
+
+
+def advance_stage(progress, track):
+    key = f"stage_index_{track}"
+    if progress[key] < len(ROADMAP[track]) - 1:
+        progress[key] += 1
     return progress

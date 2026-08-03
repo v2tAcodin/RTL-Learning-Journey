@@ -1,7 +1,8 @@
 {
   "day": 1,
   "streak": 1,
-  "stage_index": 3,
+  "stage_index_rtl": 3,
+  "stage_index_embedded": 0,
   "last_run_date": null,
   "last_update_id": null,
   "last_report_raw": ""
