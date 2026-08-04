@@ -3,7 +3,7 @@ name: RTL Evening Code Review
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 15 * * *"  # 22:00 giờ Việt Nam (UTC+7)
+  - cron: "47 14 * * *"  # 14:47 UTC = 21:47 giờ VN
 
 permissions:
   contents: write
