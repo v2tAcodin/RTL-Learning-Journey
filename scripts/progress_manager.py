@@ -21,8 +21,10 @@ ROADMAP = {
         "RISC-V CPU",
     ],
     "embedded": [
+        "C++ Fundamentals for Embedded",
+        "Memory-Mapped I/O & Embedded C++ Patterns",
         "Qsys/Platform Designer + NIOS II Integration",
-        "C Firmware Bare-metal (Nios II EDS)",
+        "C++ Firmware Bare-metal (Nios II EDS)",
         "Custom IP Core + Avalon-MM Driver",
         "SoC Debug & HW/SW Co-verification",
     ],
@@ -65,22 +67,25 @@ def save_progress(progress):
         json.dump(progress, f, ensure_ascii=False, indent=2)
 
 
-def bump_after_run(progress):
-    """Tăng day/streak theo ngày thực tế, reset streak nếu bị đứt quãng."""
-    today = date.today()
-    last_run = progress.get("last_run_date")
+def bump_after_run(progress, studied):
+    """
+    Cập nhật day/streak sau mỗi lần chạy (chỉ chạy vào ngày học T3/CN).
 
-    if last_run is None:
-        progress["streak"] = 1
+    studied: True nếu học viên CÓ báo cáo (reply Telegram) kể từ lần chạy trước,
+             tức là thực sự đã học buổi trước. False nếu im lặng, không báo cáo gì.
+
+    - "day": luôn tăng, đếm tổng số buổi đã lên lịch (dù có học hay không).
+    - "streak": chỉ tăng khi studied=True; reset về 0 nếu học viên bỏ lỡ báo cáo,
+                để streak phản ánh đúng số buổi học LIÊN TỤC thực sự, không phải
+                số lần bot tự chạy.
+    """
+    today = date.today()
+
+    progress["day"] = progress.get("day", 0) + 1
+    if studied:
+        progress["streak"] = progress.get("streak", 0) + 1
     else:
-        last_run_date = date.fromisoformat(last_run)
-        if last_run_date == today:
-            return progress
-        elif last_run_date == today - timedelta(days=1):
-            progress["streak"] = progress.get("streak", 0) + 1
-        else:
-            progress["streak"] = 1
-        progress["day"] = progress.get("day", 0) + 1
+        progress["streak"] = 0
 
     progress["last_run_date"] = today.isoformat()
     return progress

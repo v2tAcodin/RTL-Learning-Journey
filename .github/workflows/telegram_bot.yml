@@ -3,7 +3,8 @@ name: RTL Morning Mentor
 on:
   workflow_dispatch:
   schedule:
-    - cron: "13 0 * * *"  # 00:13 UTC = 07:13 giờ VN
+    - cron: "13 0 * * 0,2"  # 07:13 giờ Việt Nam (UTC+7), chỉ Chủ nhật (0) và Thứ 3 (2)
+
 permissions:
   contents: write
 
