@@ -4,6 +4,11 @@ from pathlib import Path
 from gemini_client import ask_gemini
 
 VERILOG_EXTENSIONS = {".v", ".sv", ".vh", ".svh"}
+CPP_EXTENSIONS = {".cpp", ".hpp", ".h", ".cc"}
+REVIEWABLE_EXTENSIONS = VERILOG_EXTENSIONS | CPP_EXTENSIONS
+
+
+
 PROJECTS_DIR = "projects"
 
 
