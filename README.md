@@ -152,4 +152,8 @@ Với tần suất 1 lần sáng + 1 lần tối mỗi ngày:
 - **Grounding (tin tức)**: ~30 query/tháng, trong hạn mức **5.000 query miễn phí/tháng**
 - **Tổng chi phí thực tế**: **$0/tháng**, miễn không chạy lặp bất thường (bug loop)
 
+<<<<<<< HEAD
 Khuyến nghị đặt **Budget alert** trong Google Cloud Billing ở mức thấp (VD $2) để được cảnh báo nếu có gì bất thường.
+=======
+Khuyến nghị đặt **Budget alert** trong Google Cloud Billing ở mức thấp (VD $2) để được cảnh báo nếu có gì bất thường.
+>>>>>>> bb30603c8393cef366b8105e6a24c7d3d9c2f333
